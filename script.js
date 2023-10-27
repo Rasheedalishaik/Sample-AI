@@ -1,8 +1,8 @@
 // Function to create a new chat message element
 function createMessageElement(content, isUser) {
     const messageContainer = document.createElement('div');
-    messageContainer.classList.add('message', isUser ? 'outgoing' : 'incoming'); // Updated class names
-    messageContainer.textContent = content;
+    messageContainer.classList.add('message', isUser ? 'user' : 'ai');
+    messageContainer.innerHTML = `<p class="message-content">${content}</p>`;
     return messageContainer;
 }
 
@@ -22,22 +22,17 @@ async function handleUserInput() {
         addMessage(message, true); // Add user's message to the chat
         userInput.value = ''; // Clear the input field
 
-        try {
-            // Send user's message to your AI model using the OpenAI API
-            const aiResponse = await getAIResponse(message);
-            addMessage(aiResponse, false); // Add the AI's response to the chat
-        } catch (error) {
-            console.error('Error:', error);
-            addMessage('An error occurred while processing your request.', false);
-        }
+        // Send user's message to your AI model using the OpenAI API
+        const aiResponse = await getAIResponse(message);
+
+        addMessage(aiResponse, false); // Add the AI's response to the chat
     }
 }
 
 // Function to get AI response using the OpenAI API
 async function getAIResponse(userMessage) {
-    const apiKey = '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'; // Replace with your actual API key
+    const apiKey = 'YOUR_OPENAI_API_KEY'; // Replace with your actual API key
     const endpoint = 'https://api.openai.com/v1/engines/davinci-codex/completions';
-
 
     const response = await fetch(endpoint, {
         method: 'POST',
@@ -50,10 +45,6 @@ async function getAIResponse(userMessage) {
             max_tokens: 50, // Adjust as needed
         }),
     });
-
-    if (!response.ok) {
-        throw new Error(`AI response failed with status: ${response.status}`);
-    }
 
     const data = await response.json();
     return data.choices[0].text;
